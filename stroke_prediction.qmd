@@ -1,0 +1,233 @@
+---
+title: "STROKE PREDICTION"
+author: "Juan Pablo Vanegas Moreno"
+format: html
+editor: visual
+---
+Project Scenario
+
+A leading healthcare organization has noticed a trend in an increasing number of patients being diagnosed with strokes. To mitigate this growing problem, the organization has decided to launch a project aimed at predicting the likelihood of a patient getting a stroke based on a variety of health factors. The hospital has access to a vast amount of patient data, including medical history and demographic information, which can be used to build the predictive model.
+
+Once the predictive model is validated and tested, the healthcare organization plans to integrate it into its clinical decision-making process. The model will be used to identify patients who are at high risk of getting a stroke and provide early intervention and prevention measures. Additionally, the model will be used to track the progress of high-risk patients and monitor the impact of preventive measures on reducing the incidence of stroke.
+
+The success of this project will not only help the healthcare organization reduce the number of strokes in its patient population, but it will also position the organization as a leader in the use of advanced analytics and machine learning to improve patient outcomes. The predictive model will be a valuable tool for healthcare providers and patients alike, providing insight into their risk of getting a stroke and the steps they can take to prevent it.   
+
+
+Project Objectives
+
+Explore the dataset to identify the most important patient and/or clinical characteristics.
+
+Build a well-validated stroke prediction model for clinical use.
+
+Deploy the model to enhance the organization's clinical decision-making
+
+
+
+
+PROMPT = """
+
+Your Challenge
+
+Your challenge will be to to build a well-validated stroke prediction model for clinical use using patient characteristics. To do this, you will load, clean, process, analyze, and visualize data. Then, you will build and deploy a prediction model using the cleaned and processed dataset.
+
+In this project, we'll use we'll use data containing 11 clinical features for predicting stroke events.
+
+After you perform your analysis, you will share your findings.
+
+###
+
+The dataset contains the following columns:
+
+**Data Description:**
+
+According to the World Health Organization (WHO) stroke is the 2nd leading cause of death globally, responsible for approximately 11% of total deaths.
+
+This data set is used to predict whether a patient is likely to get stroke based on the input parameters like gender, age, various diseases, and smoking status. Each row in the data provides relevant information about the patient.
+
+
+
+```{r}
+# Load the necessary libraries
+
+library(tidyverse)
+library(caret)
+library(randomForest)
+library(e1071)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+library(pROC)
+library(ROCR)
+library(caretEnsemble)
+
+```
+
+
+## Describe and explore the data
+
+```{r}
+# Load the data
+library(readr)
+dt <- read_csv("healthcare-dataset-stroke-data.csv")
+head(dt)
+
+```
+
+```{r}
+summary(dt)
+```
+
+
+
+```{r}
+# Check for missing values
+sum(is.na(dt))
+
+# Check for duplicates
+sum(duplicated(dt))
+
+# Check for unique values
+sapply(dt, function(x) length(unique(x)))
+
+
+```
+```{r}
+dt$gender <- as.factor(dt$gender)
+dt$ever_married <- as.factor(dt$ever_married)
+dt$work_type <- as.factor(dt$work_type)
+dt$Residence_type <- as.factor(dt$Residence_type)
+dt$smoking_status <- as.factor(dt$smoking_status)
+dt$bmi <- as.numeric(dt$bmi)
+dt$bmi[is.na(dt$bmi)] <- median(dt$bmi, na.rm = TRUE) 
+dt$stroke <- as.factor(dt$stroke)
+#removing ID
+dt <- dt[,-1]
+# rescale the data
+dt[, c("age", "avg_glucose_level", "bmi")] <- scale(dt[, c("age", "avg_glucose_level", "bmi")])
+```
+
+
+# Build prediction models
+
+```{r}
+# necesary libraries to build a model with machine learning
+
+library(caret)
+library(randomForest)
+library(e1071)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+library(pROC)
+library(ROCR)
+library(caretEnsemble)
+```
+
+```{r}
+# Split the data into training and testing sets
+
+set.seed(123)
+trainIndex <- createDataPartition(dt$stroke, p = .7, list = FALSE)
+train <- dt[ trainIndex,]
+test <- dt[-trainIndex,]
+
+# Check the dimensions of the training and testing sets
+
+dim(train)
+dim(test)
+
+
+```
+### Random Forest Model
+
+```{r}
+# Build a random forest model
+rf_model <- train(stroke ~., data = train, method = "rf", tuneGrid = data.frame(mtry = 1:11), 
+                  trControl = trainControl(method = "cv", number = 10))
+rf_model
+```
+
+### Support Vector Machine Model
+
+```{r}
+# Load necessary libraries
+library(caret)
+library(e1071)
+
+# Set up cross-validation
+control <- trainControl(method = "cv", number = 5)
+
+# Train SVM model with radial kernel
+set.seed(123)
+svm_model <- train(stroke ~ ., data = train, method = "svmRadial",
+                   trControl = control,
+                   preProcess = c("center", "scale"),
+                   tuneLength = 10)
+
+# Print model results
+print(svm_model)
+
+```
+
+# Evaluate and select prediction models
+
+### Random Forest Evaluation
+
+```{r}
+# Make predictions on the test data
+predictions_random_forest <- predict(rf_model, newdata = test)
+
+# Evaluate the performance of the model
+confusionMatrix(data = predictions_random_forest, reference = test$stroke)
+
+```
+### Support Vector Machine Evaluation
+
+
+```{r}
+rf_precision <- confusionMatrix(predictions_random_forest, test$stroke)$overall[1]
+svm_precision <- confusionMatrix(svm_predicciones, test$stroke)$overall[1]
+```
+
+```{r}
+print(paste("Precisión del modelo de Random Forest:", rf_precision))
+print(paste("Precisión del modelo de Support Vector Machine:", svm_precision))
+```
+
+
+# Deploy the prediction model
+
+```{r}
+
+```
+
+
+
+
+# Findings and Conclusions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
