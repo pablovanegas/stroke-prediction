@@ -21,19 +21,6 @@ Build a well-validated stroke prediction model for clinical use.
 
 Deploy the model to enhance the organization's clinical decision-making
 
-
-
-
-PROMPT = """
-
-Your Challenge
-
-Your challenge will be to to build a well-validated stroke prediction model for clinical use using patient characteristics. To do this, you will load, clean, process, analyze, and visualize data. Then, you will build and deploy a prediction model using the cleaned and processed dataset.
-
-In this project, we'll use we'll use data containing 11 clinical features for predicting stroke events.
-
-After you perform your analysis, you will share your findings.
-
 ###
 
 The dataset contains the following columns:
